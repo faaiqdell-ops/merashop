@@ -1,0 +1,29 @@
+name: Build MeraShop
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Download Spigot API
+        run: curl -o spigot-api.jar https://hub.spigotmc.org/nexus/content/repositories/snapshots/org/spigotmc/spigot-api/1.20.4-R0.1-SNAPSHOT/spigot-api-1.20.4-R0.1-20240126.114312-70.jar
+
+      - name: Build Plugin
+        run: |
+          mkdir -p build
+          javac -cp "spigot-api.jar" -d build src/com/customshop/Main.java
+          cp plugin.yml build/
+          jar cf MeraShop.jar -C build .
+
+      - name: Upload Jar Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MeraShop-Plugin
+          path: MeraShop.jar
